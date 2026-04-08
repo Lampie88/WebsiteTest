@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=900, user-scalable=yes">
+<title>lampie.net</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+/* ── PALETTE ──────────────────────────────────────────────────
+   bg:      #c0c0c0   (Win95 silver)
+   dark:    #000080   (Win95 navy – title bars, accents)
+   light:   #ffffff
+   shadow:  #555555
+   text:    #000000
+   ──────────────────────────────────────────────────────────── */
+
+body{width:100vw;height:100vh;overflow:hidden;font-family:'VT323',monospace;
+  user-select:none;background:#008080;position:relative;
+  filter:none;}
+body.booting{background:#000;}
+body.booting > *:not(#boot-sequence){visibility:hidden;}
+body.boot-complete > *:not(#boot-sequence){visibility:visible;}
+body.boot-complete #boot-sequence{pointer-events:none;}
+body.intro-ready #icon-site,
+body.intro-ready #icon-blackjack{
+  opacity:0;
+  transform:translateY(calc(-100vh - 260px));
+}
+body.intro-play #icon-site{
+  animation:desktop-icon-drop .68s cubic-bezier(.18,.78,.2,1) .04s forwards;
+}
+body.intro-play #icon-blackjack{
+  animation:desktop-icon-drop .74s cubic-bezier(.18,.78,.2,1) .16s forwards;
+}
+body.intro-ready #taskbar{
+  transform:translateY(120%);
+}
+body.intro-play #taskbar{
+  animation:taskbar-slide-up .62s cubic-bezier(.2,.78,.2,1) .2s forwards;
+}
+body.intro-ready #show-bubble{
+  opacity:0;
+  transform:translateY(12px) scale(.98);
+}
+body.intro-play #show-bubble{
+  animation:reminder-flash-in 1s linear 1.02s forwards;
+}
+body.is-mobile.intro-ready #icon-site,
+body.is-mobile.intro-ready #icon-blackjack{
+  transform:translateY(calc(-100vh - 340px));
+}
+body.is-mobile.intro-play #icon-site{
+  animation:mobile-icon-drop .82s cubic-bezier(.16,.78,.18,1) .02s forwards;
+}
+body.is-mobile.intro-play #icon-blackjack{
+  animation:mobile-icon-drop .88s cubic-bezier(.16,.78,.18,1) .14s forwards;
+}
+body.is-mobile.intro-ready #taskbar{
+  transform:translateY(140%);
+}
+body.is-mobile.intro-play #taskbar{
+  animation:mobile-taskbar-slide-up .72s cubic-bezier(.18,.8,.2,1) .18s forwards;
+}
+body.is-mobile.intro-ready #show-bubble{
+  opacity:0;
+  transform:translateY(18px) scale(.96);
+}
+body.is-mobile.intro-play #show-bubble{
+  animation:mobile-reminder-flash-in 1.12s linear .98s forwards;
+}
+
+@keyframes desktop-icon-drop{
+  0%{opacity:0;transform:translateY(calc(-100vh - 260px));}
+  70%{opacity:1;transform:translateY(12px);}
+  100%{opacity:1;transform:translateY(0);}
+}
+
+@keyframes taskbar-slide-up{
+  0%{transform:translateY(120%);}
+  75%{transform:translateY(-4px);}
+  100%{transform:translateY(0);}
+}
+
+@keyframes reminder-flash-in{
+  0%{opacity:0;transform:translateY(12px) scale(.98);}
+  18%{opacity:1;transform:translateY(0) scale(1);}
+  28%{opacity:0;transform:translateY(0) scale(1);}
+  46%{opacity:1;transform:translateY(0) scale(1);}
+  58%{opacity:0;transform:translateY(0) scale(1);}
+  100%{opacity:1;transform:translateY(0) scale(1);}
+}
+
+@keyframes mobile-icon-drop{
+  0%{opacity:0;transform:translateY(calc(-100vh - 340px));}
+  72%{opacity:1;transform:translateY(18px);}
+  100%{opacity:1;transform:translateY(0);}
+}
+
+@keyframes mobile-taskbar-slide-up{
+  0%{transform:translateY(140%);}
+  76%{transform:translateY(-6px);}
+  100%{transform:translateY(0);}
+}
+
+@keyframes mobile-reminder-flash-in{
+  0%{opacity:0;transform:translateY(18px) scale(.96);}
+  16%{opacity:1;transform:translateY(0) scale(1);}
+  26%{opacity:0;transform:translateY(0) scale(1);}
+  44%{opacity:1;transform:translateY(0) scale(1);}
+  56%{opacity:0;transform:translateY(0) scale(1);}
+  100%{opacity:1;transform:translateY(0) scale(1);}
+}
+
+/* ── BOOT SEQUENCE ────────────────────────────────────────────── */
+#boot-sequence{
+  position:fixed;
+  inset:0;
+  z-index:20000;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+#boot-sequence.is-zooming{
+  background:#008080;
+  transition:background .42s linear;
+}
+#boot-sequence.hidden{
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .28s linear, visibility 0s linear .28s;
+}
+.boot-inner{
+  width:min(46vw, 360px);
+  position:relative;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(14px, 2vw, 22px);
+}
+.boot-mark{
+  width:clamp(82px, 12vw, 160px);
+  aspect-ratio:1 / 1.3;
+  transform-origin:center center;
+  filter:drop-shadow(0 0 12px rgba(0,128,128,0.28));
+  will-change:transform, opacity;
+  position:relative;
+}
+.boot-mark-bar,
+.boot-mark-dot{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  background:#008080;
+  image-rendering:pixelated;
+  box-shadow:0 0 0 1px rgba(0,128,128,0.12);
+}
+.boot-mark-bar{
+  top:0;
+  width:30%;
+  height:72%;
+}
+.boot-mark-dot{
+  bottom:0;
+  width:30%;
+  height:16%;
+}
+.boot-bar{
+  width:100%;
+  max-width:260px;
+  height:clamp(10px, 1.5vw, 14px);
+  padding:2px;
+  border:2px solid rgba(255,255,255,0.75);
+  background:#050505;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.14);
+}
+.boot-bar-fill{
+  width:0;
+  height:100%;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #008080 0 12px,
+      #c8ffff 12px 14px,
+      transparent 14px 18px
+    );
+  box-shadow:0 0 8px rgba(0,128,128,0.45);
+}
+#boot-sequence.is-loading .boot-bar-fill{
+  animation:boot-load 1.05s steps(12, end) forwards;
+}
+#boot-sequence.is-zooming .boot-bar{
+  opacity:0;
+  transform:scaleX(.92);
+  transition:opacity .16s linear, transform .24s ease-out;
+}
+#boot-sequence.is-zooming .boot-mark{
+  animation:boot-mark-grow 1.06s cubic-bezier(.18,.72,.2,1) forwards;
+}
+
+@keyframes boot-load{
+  0%{width:0;}
+  100%{width:100%;}
+}
+
+@keyframes boot-mark-grow{
+  0%{
+    transform:scale(1);
+    opacity:1;
+    filter:drop-shadow(0 0 10px rgba(0,128,128,0.24));
+  }
+  58%{
+    transform:scale(42);
+    opacity:1;
+    filter:drop-shadow(0 0 18px rgba(0,128,128,0.34));
+  }
+  100%{
+    transform:scale(108);
+    opacity:1;
+    filter:drop-shadow(0 0 24px rgba(0,128,128,0.42));
+  }
+}
+
+/* ── BEVEL HELPERS ───────────────────────────────────────────── */
+.raised{border:2px solid;border-color:#fff #555 #555 #fff;}
+.sunken{border:2px solid;border-color:#555 #fff #fff #555;}
+
+/* ── TASKBAR ─────────────────────────────────────────────────── */
+#taskbar{position:fixed;bottom:0;left:0;right:0;height:36px;
+  background:#c0c0c0;border-top:2px solid #fff;
+  display:flex;align-items:center;padding:0 4px;gap:4px;z-index:9999;}
+#start-btn{background:#c0c0c0;border-top:2px solid #fff;border-left:2px solid #fff;
+  border-bottom:2px solid #555;border-right:2px solid #555;
+  color:#000;font-size:16px;font-weight:bold;padding:3px 12px;
+  cursor:pointer;font-family:'VT323',monospace;}
+#start-btn:active{border-color:#555 #fff #fff #555;}
+#taskbar-clock{margin-left:auto;border-top:1px solid #555;border-left:1px solid #555;
+  border-bottom:1px solid #fff;border-right:1px solid #fff;
+  padding:2px 10px;font-size:15px;color:#000;font-family:'VT323',monospace;}
+.tb-item{background:#c0c0c0;border-top:2px solid #fff;border-left:2px solid #fff;
+  border-bottom:2px solid #555;border-right:2px solid #555;
+  color:#000;font-size:13px;padding:2px 8px;cursor:pointer;
+  display:none;font-family:'VT323',monospace;white-space:nowrap;max-width:120px;overflow:hidden;}
+
+/* ── DESKTOP ICONS ───────────────────────────────────────────── */
+.di{position:absolute;width:100px;text-align:center;cursor:pointer;padding:4px;}
+.di{z-index:60;}
+.di:hover .di-label{background:#000080;color:#fff;}
+.di-box{
+  width:72px;height:72px;
+  background:transparent;
+  border:none;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'VT323',monospace;font-weight:bold;
+  margin:0 auto 4px;
+  line-height:1;
+}
+.desktop-icon-img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+  font-size:0;
+}
+@media(min-width:601px){
+  .di-box{width:96px;height:96px;}
+  .di{width:120px;}
+  .di-label{font-size:13px;}
+}
+.di-label{font-size:12px;color:#fff;text-shadow:1px 1px #000;
+  font-family:'VT323',monospace;padding:1px 4px;display:inline-block;}
+
+#webamp-host{
+  position:fixed;
+  left:18px;
+  top:286px;
+  width:920px;
+  height:520px;
+  z-index:20;
+}
+
+/* ── WIN95 WINDOW ────────────────────────────────────────────── */
+.win{position:absolute;background:#c0c0c0;
+  border-top:2px solid #fff;border-left:2px solid #fff;
+  border-bottom:2px solid #555;border-right:2px solid #555;
+  display:none;flex-direction:column;z-index:100;}
+.win.open{display:flex;}
+
+.titlebar{background:#000080;padding:4px 6px;display:flex;align-items:center;
+  gap:6px;cursor:move;flex-shrink:0;}
+.titlebar-icon{font-size:14px;color:#fff;width:16px;text-align:center;flex-shrink:0;}
+.titlebar-title{flex:1;font-size:14px;color:#fff;font-family:'VT323',monospace;letter-spacing:.3px;}
+.win-btns{display:flex;gap:2px;}
+.win-btn{width:18px;height:16px;background:#c0c0c0;
+  border-top:1px solid #fff;border-left:1px solid #fff;
+  border-bottom:1px solid #555;border-right:1px solid #555;
+  font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:#000;font-family:'VT323',monospace;font-weight:bold;touch-action:manipulation;}
+.win-btn:active{border-color:#555 #fff #fff #555;}
+
+.menubar{background:#c0c0c0;border-bottom:1px solid #888;padding:2px 4px;
+  font-size:13px;display:flex;flex-shrink:0;font-family:'VT323',monospace;}
+.menubar span{padding:2px 8px;cursor:default;color:#000;}
+.menubar span:hover{background:#000080;color:#fff;}
+
+.addrbar{background:#c0c0c0;border-bottom:1px solid #888;padding:3px 6px;
+  display:flex;align-items:center;gap:4px;flex-shrink:0;
+  font-family:'VT323',monospace;font-size:13px;}
+.addr-box{flex:1;background:#fff;border-top:1px solid #555;border-left:1px solid #555;
+  border-bottom:1px solid #fff;border-right:1px solid #fff;
+  padding:1px 6px;font-size:12px;color:#000;font-family:'VT323',monospace;}
+.nav-btn{background:#c0c0c0;border-top:1px solid #fff;border-left:1px solid #fff;
+  border-bottom:1px solid #555;border-right:1px solid #555;
+  font-size:11px;padding:1px 5px;cursor:pointer;color:#000;}
+
+.win-body{overflow-y:auto;flex:1;background:#c0c0c0;}
+body:not(.is-mobile) #site-win{
+  height:min(560px,72vh);
+}
+body:not(.is-mobile) #site-win .win-body{
+  min-height:0;
+  overflow-y:auto;
+}
+body:not(.is-mobile) #blackjack-win{
+  width:840px !important;
+  height:540px;
+}
+body:not(.is-mobile) #blackjack-win #bj-wrap{
+  flex:1;
+  overflow:auto;
+}
+
+/* ── SITE CONTENT ────────────────────────────────────────────── */
+#site{font-family:'VT323',monospace;font-size:18px;color:#000;padding:10px 14px;}
+#site a{color:#000080;}#site a:visited{color:#000060;}#site a:hover{color:#000;}
+#site h1{font-size:44px;color:#000;margin:0;}
+#site h2{color:#000;margin:0 0 5px;}
+#site hr{border-top:1px solid #555;border-bottom:1px solid #fff;margin:8px 0;}
+#site p{line-height:1.25;}
+
+.marquee-wrap{background:#000080;color:#fff;padding:2px 0;font-size:14px;
+  display:block;margin-bottom:8px;overflow:hidden;white-space:nowrap;width:100%;}
+.marquee-inner{display:inline-block;padding-left:100%;animation:marquee 18s linear infinite;}
+@keyframes marquee{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}
+
+.social-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 0;font-size:18px;max-width:360px;}
+.social-grid a{color:#000080;text-decoration:underline;}
+.social-grid a:hover{color:#000;}
+.greyed{color:#888;text-decoration:underline;cursor:default;pointer-events:none;}
+.layout{display:flex;gap:12px;align-items:flex-start;}
+.left{flex:1;min-width:0;}.right{width:185px;flex-shrink:0;}
+
+/* ── CHAT ────────────────────────────────────────────────────── */
+.chat-board{border-top:2px solid #555;border-left:2px solid #555;
+  border-bottom:2px solid #fff;border-right:2px solid #fff;
+  background:#c0c0c0;padding:5px;}
+.chat-title{background:#000080;color:#fff;font-size:13px;padding:2px 6px;
+  margin-bottom:5px;font-family:'VT323',monospace;}
+.chat-msgs{height:180px;overflow-y:auto;background:#fff;
+  border-top:1px solid #555;border-left:1px solid #555;
+  border-bottom:1px solid #fff;border-right:1px solid #fff;
+  padding:3px 5px;margin-bottom:5px;font-size:13px;}
+.chat-msg{margin-bottom:4px;border-bottom:1px solid #ddd;padding-bottom:2px;line-height:1.3;}
+.chat-msg .nm{color:#000080;font-weight:bold;}
+.chat-msg .tm{color:#888;font-size:11px;margin-left:3px;}
+.chat-msg .tx{display:block;color:#000;}
+.chat-in{display:flex;flex-direction:column;gap:3px;}
+.chat-in input,.chat-in textarea{font-family:'VT323',monospace;font-size:13px;
+  border-top:1px solid #555;border-left:1px solid #555;
+  border-bottom:1px solid #fff;border-right:1px solid #fff;
+  background:#fff;padding:2px 4px;width:100%;color:#000;}
+.chat-in textarea{resize:none;height:36px;}
+.chat-btn{font-family:'VT323',monospace;font-size:13px;background:#c0c0c0;
+  border-top:2px solid #fff;border-left:2px solid #fff;
+  border-bottom:2px solid #555;border-right:2px solid #555;
+  padding:2px 14px;cursor:pointer;align-self:flex-end;color:#000;}
+.chat-btn:active{border-color:#555 #fff #fff #555;}
+.chat-empty{color:#888;font-style:italic;font-size:12px;padding:3px;}
+.chat-note{font-size:10px;color:#666;text-align:center;padding:2px;font-style:italic;}
+
+/* ── BLACKJACK ───────────────────────────────────────────────── */
+#bj-wrap{background:#005000;padding:8px;font-family:'VT323',monospace;color:#fff;font-size:15px;}
+.bj-btn{font-family:'VT323',monospace;font-size:14px;background:#c0c0c0;
+  border-top:2px solid #fff;border-left:2px solid #fff;
+  border-bottom:2px solid #555;border-right:2px solid #555;
+  padding:2px 10px;cursor:pointer;color:#000;}
+.bj-btn:active{border-color:#555 #fff #fff #555;}
+.bj-btn:disabled{color:#888;cursor:default;}
+
+/* ── FOLDER ──────────────────────────────────────────────────── */
+.folder-body{padding:6px;background:#c0c0c0;}
+.folder-item{display:flex;align-items:center;gap:8px;padding:4px 6px;
+  cursor:pointer;font-family:'VT323',monospace;font-size:15px;color:#000;}
+.folder-item:hover{background:#000080;color:#fff;}
+
+/* ── 404 ─────────────────────────────────────────────────────── */
+.err-body{padding:20px;text-align:center;font-family:'VT323',monospace;background:#c0c0c0;}
+.err-body h1{font-size:52px;color:#000080;}
+.err-body p{font-size:18px;color:#000;margin-top:8px;}
+.err-body .sub{color:#555;font-size:14px;margin-top:6px;}
+
+/* ── MUSIC PLAYER ────────────────────────────────────────────── */
+.player-bar{background:#c0c0c0;border-bottom:1px solid #888;padding:3px 8px;
+  display:flex;justify-content:space-between;font-family:'VT323',monospace;
+  font-size:14px;color:#000;}
+
+/* ── SHOW REMINDER ───────────────────────────────────────────── */
+#show-bubble{position:fixed;bottom:50px;right:16px;
+  background:#ffff99;
+  border:2px solid #000;
+  border-radius:6px;
+  padding:8px 12px 10px;font-family:'VT323',monospace;font-size:14px;
+  max-width:200px;z-index:9998;line-height:1.6;color:#000;
+  box-shadow:2px 2px #555;}
+#show-bubble::after{content:'';position:absolute;bottom:-10px;right:20px;
+  width:0;height:0;border-left:8px solid transparent;
+  border-right:8px solid transparent;border-top:10px solid #000;}
+#show-bubble-close{position:absolute;top:2px;right:5px;cursor:pointer;font-size:13px;color:#555;}
+
+/* ── VERSION ─────────────────────────────────────────────────── */
+#ver{position:fixed;bottom:38px;right:6px;font-family:'VT323',monospace;
+  font-size:11px;color:rgba(0,0,0,0.4);z-index:9997;pointer-events:none;}
+
+/* ── DESKTOP (default) ───────────────────────────────────────── */
+.di-box{width:96px;height:96px;}
+.di{width:120px;}
+.di-label{font-size:13px;}
+
+/* Reminder desktop 3x */
+#show-bubble{font-size:28px;max-width:420px;padding:14px 18px 20px;line-height:1.6;border-width:3px;border-radius:10px;}
+#show-bubble b{font-size:32px;}
+#show-bubble-close{font-size:22px;}
+#show-bubble::after{border-left-width:14px;border-right-width:14px;border-top-width:16px;bottom:-16px;}
+
+/* ── MOBILE CLASS (applied via JS on touch devices) ──────────── */
+body.is-mobile #taskbar{height:82px;padding:0 8px;gap:6px;}
+body.is-mobile #start-btn{font-size:30px;padding:10px 20px;}
+body.is-mobile .tb-item{font-size:24px;padding:8px 14px;max-width:180px;}
+body.is-mobile #taskbar-clock{font-size:25px;padding:8px 14px;}
+
+/* Icons 2x on mobile */
+body.is-mobile .di-box{width:180px;height:180px;font-size:80px;}
+body.is-mobile .di{width:220px;padding:8px 0;}
+body.is-mobile .di-label{font-size:22px;}
+body.is-mobile #icon-site{top:18px !important;left:10px !important;}
+body.is-mobile #icon-blackjack{top:240px !important;left:10px !important;}
+body.is-mobile #webamp-host{
+  left:10px;
+  top:470px;
+  width:calc(100vw - 20px);
+  height:420px;
+}
+
+/* Taskbar bigger on mobile */
+body.is-mobile #taskbar{height:82px;}
+body.is-mobile #start-btn{font-size:30px;padding:10px 20px;}
+body.is-mobile .tb-item{font-size:24px;padding:8px 14px;}
+body.is-mobile #taskbar-clock{font-size:25px;padding:8px 14px;}
+
+/* Chat bigger on mobile */
+body.is-mobile .chat-msgs{height:260px;font-size:20px;}
+body.is-mobile .chat-msg .nm{font-size:20px;}
+body.is-mobile .chat-msg .tm{font-size:16px;}
+body.is-mobile .chat-msg .tx{font-size:18px;}
+body.is-mobile .chat-in input,body.is-mobile .chat-in textarea{font-size:20px;padding:4px 8px;}
+body.is-mobile .chat-btn{font-size:22px;padding:4px 18px;}
+body.is-mobile .chat-title{font-size:20px;padding:4px 10px;}
+body.is-mobile .chat-empty{font-size:18px;}
+body.is-mobile .chat-note{font-size:14px;}
+
+/* Reminder 300% on mobile */
+body.is-mobile #show-bubble{font-size:28px;max-width:380px;padding:12px 16px 20px;line-height:1.6;border-width:3px;bottom:80px;right:10px;}
+body.is-mobile #show-bubble b{font-size:30px;}
+body.is-mobile #show-bubble-close{font-size:20px;}
+body.is-mobile #show-bubble::after{border-left-width:12px;border-right-width:12px;border-top-width:14px;bottom:-14px;}
+
+/* Windows bigger on mobile */
+body.is-mobile .win{
+  font-size:120%;
+  width:calc(100vw - 24px) !important;
+  max-width:calc(100vw - 24px) !important;
+  left:12px !important;
+  top:12px !important;
+  max-height:calc(100vh - 96px);
+}
+body.is-mobile .titlebar-title{font-size:20px;}
+body.is-mobile .win-btn{width:40px;height:36px;font-size:22px;}
+body.is-mobile .menubar{font-size:18px;}
+body.is-mobile .addrbar{font-size:18px;}
+body.is-mobile .win-body{min-height:calc(100vh - 220px);}
+body.is-mobile .titlebar{padding:6px 8px;}
+body.is-mobile .win-btns{gap:4px;}
+body.is-mobile #blackjack-win{
+  width:calc(100vw - 48px) !important;
+  max-width:440px !important;
+  left:24px !important;
+}
+body.is-mobile #bj-wrap{font-size:20px;padding:12px;}
+body.is-mobile .bj-btn{font-size:18px;padding:6px 12px;}
+body.is-mobile #bj-bet-ctrl,
+body.is-mobile #bj-act-ctrl,
+body.is-mobile #bj-new-ctrl{flex-wrap:wrap;gap:8px;}
+body.is-mobile #bj-dealer-cards,
+body.is-mobile #bj-player-cards{min-height:84px !important;gap:6px !important;}
+body.is-mobile #site{padding:14px 16px 20px;font-size:24px;}
+body.is-mobile #site h1{font-size:56px;line-height:.95;margin-bottom:8px;}
+body.is-mobile #site h2{font-size:28px;margin-bottom:8px;}
+body.is-mobile #site hr{margin:12px 0;}
+body.is-mobile .marquee-wrap{font-size:18px;margin-bottom:12px;padding:4px 0;}
+body.is-mobile .layout{flex-direction:column;gap:16px;}
+body.is-mobile .left,
+body.is-mobile .right{width:100%;}
+body.is-mobile .social-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none;gap:10px 12px;font-size:24px;}
+body.is-mobile .chat-board{padding:8px;}
+
+/* ── MOBILE ──────────────────────────────────────────────────── */
+@media(max-width:600px){
+  #taskbar{height:74px;padding:0 6px;gap:6px;}
+  #start-btn{font-size:26px;padding:8px 16px;}
+  .tb-item{font-size:20px;padding:6px 12px;max-width:160px;}
+  #taskbar-clock{font-size:22px;padding:6px 12px;}
+  .di-box{width:100px;height:100px;font-size:40px;}
+  .di{width:140px;padding:6px 0;}
+  .di-label{font-size:14px;}
+  #show-bubble{font-size:13px;max-width:200px;bottom:66px;}
+  #icon-site{top:14px !important;left:8px !important;}
+  #icon-blackjack{top:132px !important;left:8px !important;}
+  #webamp-host{
+    left:8px;
+    top:242px;
+    width:calc(100vw - 16px);
+    height:360px;
+  }
+  .win{
+    width:calc(100vw - 16px) !important;
+    max-width:calc(100vw - 16px) !important;
+    left:8px !important;
+    top:8px !important;
+    max-height:calc(100vh - 84px);
+  }
+  .win-body{min-height:calc(100vh - 190px);}
+  #blackjack-win{
+    width:calc(100vw - 28px) !important;
+    max-width:calc(100vw - 28px) !important;
+    left:14px !important;
+  }
+  #bj-wrap{font-size:16px;padding:10px;}
+  .bj-btn{font-size:15px;padding:4px 10px;}
+  #bj-bet-ctrl,
+  #bj-act-ctrl,
+  #bj-new-ctrl{flex-wrap:wrap;gap:6px;}
+  #site{padding:12px 12px 18px;font-size:17px;}
+  #site h1{font-size:38px;line-height:1;}
+  #site h2{font-size:20px;}
+  .marquee-wrap{font-size:13px;margin-bottom:10px;}
+  .layout{flex-direction:column;gap:12px;}
+  .left,.right{width:100%;}
+  .social-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none;gap:8px 10px;font-size:17px;}
+}
+</style>
+</head>
+<body class="booting">
+
+<div id="boot-sequence" aria-hidden="true">
+  <div class="boot-inner">
+    <div class="boot-mark">
+      <div class="boot-mark-bar"></div>
+      <div class="boot-mark-dot"></div>
+    </div>
+    <div class="boot-bar">
+      <div class="boot-bar-fill"></div>
+    </div>
+  </div>
+</div>
+
+<div id="webamp-host"></div>
+
+<!-- SHOW REMINDER -->
+<div id="show-bubble">
+  <span id="show-bubble-close" onclick="document.getElementById('show-bubble').style.display='none'">✕</span>
+  <b>JUST A REMINDER</b><br>
+  April 10 — IKU @<br>VSHOW Karaoke Happy Hour<br>
+  31-01 Downing St, Queens NY
+</div>
+
+<!-- VERSION -->
+<div id="ver">v0.1.2a</div>
+
+<!-- ── COLUMN 1: MAIN ICONS ──────────────────────────────────── -->
+<div class="di" id="icon-site" style="top:16px;left:16px;" onclick="openWin('site-win')">
+  <div class="di-box">
+    <img src="./lampie.png" alt="" class="desktop-icon-img">
+  </div>
+  <span class="di-label">lampie.net</span>
+</div>
+<div class="di" id="icon-blackjack" style="top:140px;left:16px;" onclick="openWin('blackjack-win')">
+  <div class="di-box">
+    <img src="./blackjack.png" alt="" class="desktop-icon-img">
+  </div>
+  <span class="di-label">Blackjack.exe</span>
+</div>
+<!-- ══════════════════════════════════════════════════════════════
+     WINDOWS
+══════════════════════════════════════════════════════════════════ -->
+
+<!-- LAMPIE.NET -->
+<div class="win" id="site-win" style="top:40px;left:290px;width:560px;">
+  <div class="titlebar" onmousedown="startDrag(event,'site-win')" ontouchstart="startDrag(event,'site-win')">
+    <span class="titlebar-icon">!</span>
+    <div class="titlebar-title">lampie.net — Microsoft Internet Explorer</div>
+    <div class="win-btns">
+      <div class="win-btn" onclick="minimizeWin('site-win')">_</div>
+      <div class="win-btn">□</div>
+      <div class="win-btn" onclick="closeWin('site-win','tb-site')">✕</div>
+    </div>
+  </div>
+  <div class="menubar"><span>File</span><span>Edit</span><span>View</span><span>Favorites</span><span>Tools</span><span>Help</span></div>
+  <div class="addrbar">
+    <button class="nav-btn">◀</button><button class="nav-btn">▶</button>
+    <div class="addr-box">http://www.lampie.net/</div>
+    <button class="nav-btn">Go</button>
+  </div>
+  <div class="win-body">
+    <div id="site">
+      <div class="marquee-wrap"><span class="marquee-inner">yuhhhhh lampie.net yuhhh pop out lampie.net yuhhh type shi type shi yuhhhh</span></div>
+      <h1>Lampie !</h1>
+      <hr>
+      <div class="layout">
+        <div class="left">
+          <h2>SOCIALS</h2>
+          <div class="social-grid">
+            <a href="http://instagram.com/jaaicob">instagram</a>
+            <a href="https://soundcloud.com/lamp-ie">soundcloud</a>
+            <a href="https://www.tiktok.com/@asiangarbage">tiktok</a>
+            <a href="https://www.twitch.tv/worldsbestfoodie">twitch</a>
+            <span class="greyed">youtube</span>
+            <span class="greyed">spotify</span>
+          </div>
+          <hr>
+          <h2>SHOWS</h2>
+          <p>APRIL 10 — IKU @ VSHOW KARAOKE HAPPY HOUR<br>
+          <small>31-01 Downing St 2nd Floor, Queens, NY 11354</small><br>
+          <small><small>opening for IKU n shi</small></small></p>
+          <hr>
+          <h2>MIXES</h2>
+          <p>&#9658; <a href="https://soundcloud.com/lamp-ie/goldrush-dj-competition-2025">sometimes i mess around</a><br>
+          &#9658; ...<br>&#9658; ...<br>&#9658; ...<br>&#9658; ...<br>&#9658; coming soon...</p>
+          <hr>
+          <h2>WATCH</h2>
+          <p>&#9658; ...<br>&#9658; ...<br>&#9658; ...<br>&#9658; ...<br>&#9658; ...<br>&#9658; coming soon...</p>
+          <hr>
+          <p><small>lampie 2026 &lt;3</small></p>
+          <p><small>visitors: <span id="visit-count" style="font-family:'VT323',monospace;background:#000080;color:#fff;padding:1px 8px;letter-spacing:2px;">000000</span></small></p>
+        </div>
+        <div class="right">
+          <div class="chat-board">
+            <div class="chat-title">:: CHAT BOARD ::</div>
+            <div class="chat-msgs" id="chatMessages"><div class="chat-empty">no messages yet. say something.</div></div>
+            <div class="chat-in">
+              <input type="text" id="chatName" placeholder="your name" maxlength="24"/>
+              <textarea id="chatText" placeholder="say something..." maxlength="200"></textarea>
+              <button class="chat-btn" onclick="postMessage()">OK</button>
+            </div>
+            <div class="chat-note">chat saves for all visitors</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BLACKJACK -->
+<div class="win" id="blackjack-win" style="top:420px;left:290px;width:420px;">
+  <div class="titlebar" onmousedown="startDrag(event,'blackjack-win')" ontouchstart="startDrag(event,'blackjack-win')">
+    <span class="titlebar-icon">♠</span>
+    <div class="titlebar-title">Blackjack.exe</div>
+    <div class="win-btns">
+      <div class="win-btn" onclick="minimizeWin('blackjack-win')">_</div>
+      <div class="win-btn">□</div>
+      <div class="win-btn" onclick="closeWin('blackjack-win','tb-blackjack')">✕</div>
+    </div>
+  </div>
+  <div class="menubar"><span>Game</span><span>Help</span></div>
+  <div id="bj-wrap">
+    <div style="display:flex;justify-content:space-between;background:rgba(0,0,0,0.3);padding:4px 8px;margin-bottom:8px;">
+      <span>BALANCE: <b id="bj-balance">$100</b></span><span>BET: <b id="bj-bet">$5</b></span>
+    </div>
+    <div style="margin-bottom:6px;">
+      <div style="font-size:12px;color:#9fc;">DEALER <span id="bj-dealer-val"></span></div>
+      <div id="bj-dealer-cards" style="display:flex;gap:4px;flex-wrap:wrap;min-height:66px;margin-top:4px;"></div>
+    </div>
+    <div style="margin-bottom:8px;">
+      <div style="font-size:12px;color:#9fc;">YOU <span id="bj-player-val"></span></div>
+      <div id="bj-player-cards" style="display:flex;gap:4px;flex-wrap:wrap;min-height:66px;margin-top:4px;"></div>
+    </div>
+    <div id="bj-msg" style="text-align:center;font-size:17px;min-height:20px;color:#ff0;margin-bottom:6px;"></div>
+    <div id="bj-bet-ctrl" style="display:flex;gap:4px;justify-content:center;margin-bottom:6px;">
+      <button class="bj-btn" onclick="bjBet(-5)">-$5</button>
+      <button class="bj-btn" onclick="bjBet(5)">+$5</button>
+      <button class="bj-btn" onclick="bjBet(25)">+$25</button>
+      <button class="bj-btn" onclick="bjDeal()">DEAL</button>
+    </div>
+    <div id="bj-act-ctrl" style="display:none;gap:4px;justify-content:center;margin-bottom:6px;">
+      <button class="bj-btn" onclick="bjHit()">HIT</button>
+      <button class="bj-btn" onclick="bjStand()">STAND</button>
+      <button class="bj-btn" id="bj-dbl" onclick="bjDouble()">DOUBLE</button>
+    </div>
+    <div id="bj-new-ctrl" style="display:none;justify-content:center;margin-bottom:6px;">
+      <button class="bj-btn" onclick="bjNew()">NEW ROUND</button>
+    </div>
+  </div>
+</div>
+
+<!-- MIXES FOLDER -->
+<div class="win" id="mixes-win" style="top:420px;left:500px;width:340px;">
+  <div class="titlebar" onmousedown="startDrag(event,'mixes-win')" ontouchstart="startDrag(event,'mixes-win')">
+    <span class="titlebar-icon">▣</span>
+    <div class="titlebar-title">Mixes</div>
+    <div class="win-btns">
+      <div class="win-btn" onclick="minimizeWin('mixes-win')">_</div>
+      <div class="win-btn">□</div>
+      <div class="win-btn" onclick="closeWin('mixes-win','tb-mixes')">✕</div>
+    </div>
+  </div>
+  <div class="menubar"><span>File</span><span>Edit</span><span>View</span></div>
+  <div style="background:#c0c0c0;font-size:12px;padding:2px 6px;border-bottom:1px solid #888;font-family:'VT323',monospace;color:#000;">1 object(s)</div>
+  <div class="win-body folder-body">
+    <div class="folder-item" ondblclick="openWin('mix1-win')">
+      <span style="font-size:20px;color:#000080;">♪</span>
+      <span>sometimes i mess around.mp3</span>
+    </div>
+  </div>
+</div>
+
+<!-- MIX PLAYER -->
+<div class="win" id="mix1-win" style="top:450px;left:310px;width:340px;">
+  <div class="titlebar" onmousedown="startDrag(event,'mix1-win')" ontouchstart="startDrag(event,'mix1-win')">
+    <span class="titlebar-icon">♪</span>
+    <div class="titlebar-title">sometimes i mess around.mp3</div>
+    <div class="win-btns">
+      <div class="win-btn" onclick="minimizeWin('mix1-win')">_</div>
+      <div class="win-btn">□</div>
+      <div class="win-btn" onclick="closeWin('mix1-win','tb-mix1')">✕</div>
+    </div>
+  </div>
+  <div style="background:#c0c0c0;padding:3px 8px;font-family:'VT323',monospace;font-size:12px;border-bottom:1px solid #888;color:#000;">Windows Media Player</div>
+  <div class="win-body" style="background:#000;">
+    <iframe width="340" height="140" scrolling="no" frameborder="no" allow="autoplay"
+      src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/lamp-ie/goldrush-dj-competition-2025&color=%23000080&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false">
+    </iframe>
+  </div>
+</div>
+
+<!-- README -->
+<div class="win" id="readme-win" style="top:430px;left:290px;width:400px;">
+  <div class="titlebar" onmousedown="startDrag(event,'readme-win')" ontouchstart="startDrag(event,'readme-win')">
+    <span class="titlebar-icon" style="font-size:11px;">txt</span>
+    <div class="titlebar-title">readme.txt — Notepad</div>
+    <div class="win-btns">
+      <div class="win-btn" onclick="minimizeWin('readme-win')">_</div>
+      <div class="win-btn">□</div>
+      <div class="win-btn" onclick="closeWin('readme-win','tb-readme')">✕</div>
+    </div>
+  </div>
+  <div class="menubar"><span>File</span><span>Edit</span><span>Format</span><span>Help</span></div>
+  <div style="background:#fff;padding:10px 12px;font-family:'VT323',monospace;font-size:17px;color:#000;min-height:80px;border-top:1px solid #555;">
+    this is an early version, itll get cooler i promise!
+  </div>
+</div>
+
+<!-- YOUTUBE 404 -->
+<div class="win" id="youtube-win" style="top:410px;left:290px;width:480px;">
+  <div class="titlebar" onmousedown="startDrag(event,'youtube-win')" ontouchstart="startDrag(event,'youtube-win')">
+    <span class="titlebar-icon" style="font-size:11px;">yt</span>
+    <div class="titlebar-title">YouTube — Microsoft Internet Explorer</div>
+    <div class="win-btns">
+      <div class="win-btn" onclick="minimizeWin('youtube-win')">_</div>
+      <div class="win-btn">□</div>
+      <div class="win-btn" onclick="closeWin('youtube-win','tb-youtube')">✕</div>
+    </div>
+  </div>
+  <div class="menubar"><span>File</span><span>Edit</span><span>View</span><span>Help</span></div>
+  <div class="addrbar"><button class="nav-btn">◀</button><button class="nav-btn">▶</button>
+    <div class="addr-box">http://www.youtube.com/lampie</div><button class="nav-btn">Go</button></div>
+  <div class="win-body err-body">
+    <h1>404</h1>
+    <p>This page cannot be displayed.</p>
+    <p class="sub">coming soon... maybe</p>
+  </div>
+</div>
+
+<!-- SPOTIFY 404 -->
+<div class="win" id="spotify-win" style="top:420px;left:300px;width:480px;">
+  <div class="titlebar" onmousedown="startDrag(event,'spotify-win')" ontouchstart="startDrag(event,'spotify-win')">
+    <span class="titlebar-icon" style="font-size:11px;">sp</span>
+    <div class="titlebar-title">Spotify — Microsoft Internet Explorer</div>
+    <div class="win-btns">
+      <div class="win-btn" onclick="minimizeWin('spotify-win')">_</div>
+      <div class="win-btn">□</div>
+      <div class="win-btn" onclick="closeWin('spotify-win','tb-spotify')">✕</div>
+    </div>
+  </div>
+  <div class="menubar"><span>File</span><span>Edit</span><span>View</span><span>Help</span></div>
+  <div class="addrbar"><button class="nav-btn">◀</button><button class="nav-btn">▶</button>
+    <div class="addr-box">http://www.spotify.com/lampie</div><button class="nav-btn">Go</button></div>
+  <div class="win-body err-body">
+    <h1>404</h1>
+    <p>This page cannot be displayed.</p>
+    <p class="sub">coming soon... maybe</p>
+  </div>
+</div>
+
+<!-- ── TASKBAR ────────────────────────────────────────────────── -->
+<div id="taskbar">
+  <button id="start-btn">! Start</button>
+  <div id="tb-site"      class="tb-item" onclick="toggleWin('site-win')">! lampie.net</div>
+  <div id="tb-blackjack" class="tb-item" onclick="toggleWin('blackjack-win')">♠ Blackjack</div>
+  <div id="tb-mixes"     class="tb-item" onclick="toggleWin('mixes-win')">▣ Mixes</div>
+  <div id="tb-mix1"      class="tb-item" onclick="toggleWin('mix1-win')">♪ mix</div>
+  <div id="tb-readme"    class="tb-item" onclick="toggleWin('readme-win')">txt readme</div>
+  <div id="tb-youtube"   class="tb-item" onclick="toggleWin('youtube-win')">yt YouTube</div>
+  <div id="tb-spotify"   class="tb-item" onclick="toggleWin('spotify-win')">sp Spotify</div>
+  <div id="taskbar-clock"></div>
+</div>
+
+<script>
+// ── WEBAMP ──────────────────────────────────────────────────────
+(function(){
+  const host=document.getElementById('webamp-host');
+  if(!host) return;
+
+  function loadScript(src){
+    return new Promise((resolve,reject)=>{
+      const s=document.createElement('script');
+      s.src=src;
+      s.onload=resolve;
+      s.onerror=reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  function renamePlaylistWindow(root){
+    if(!root) return;
+    const walker=document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let node;
+    while((node=walker.nextNode())){
+      if(node.nodeValue && node.nodeValue.trim()==='Playlist Editor'){
+        node.nodeValue='songs I like';
+      }
+    }
+  }
+
+  Promise.all([
+    loadScript('https://unpkg.com/butterchurn/lib/butterchurn.min.js'),
+    loadScript('https://unpkg.com/butterchurn-presets/dist/base.min.js'),
+    loadScript('https://unpkg.com/webamp@1.5.0/built/webamp.bundle.min.js')
+  ]).then(()=>{
+    const isMobile=document.body.classList.contains('is-mobile');
+    const presetsSource=window.butterchurnPresets || window.base || {};
+    const presets={};
+    Object.keys(presetsSource).forEach(name=>{
+      presets[name]={name,butterchurnPresetObject:presetsSource[name]};
+    });
+
+    const webamp=new Webamp({
+      zIndex:20,
+      initialTracks:[
+        {
+          metaData:{artist:'djbas',title:'17minutes'},
+          url:'./17minutes.mp3'
+        }
+      ],
+      __butterchurnOptions:{
+        importButterchurn: () => Promise.resolve(window.butterchurn),
+        getPresets: () => Promise.resolve(presets)
+      },
+      windowLayout:{
+        main:{position:{x:0,y:0},closed:false},
+        equalizer:{position:{x:0,y:116},closed:false},
+        playlist:{position:{x:0,y:232},size:[0,isMobile?8:6],closed:false},
+        milkdrop:{position:{x:isMobile?0:276,y:isMobile?396:0},size:[isMobile?0:7,isMobile?6:12],closed:false}
+      }
+    });
+
+    webamp.renderWhenReady(host).then(()=>{
+      renamePlaylistWindow(host);
+      const observer=new MutationObserver(()=>renamePlaylistWindow(host));
+      observer.observe(host,{childList:true,subtree:true,characterData:true});
+      setTimeout(()=>observer.disconnect(),4000);
+    }).catch(()=>{});
+  }).catch(()=>{});
+})();
+
+// ── BOOT SEQUENCE ───────────────────────────────────────────────
+(function(){
+  const boot=document.getElementById('boot-sequence');
+  if(!boot){
+    document.body.classList.remove('booting');
+    document.body.classList.add('boot-complete');
+    return;
+  }
+  requestAnimationFrame(()=>boot.classList.add('is-loading'));
+  setTimeout(()=>{
+    boot.classList.add('is-zooming');
+  }, 1180);
+  setTimeout(()=>{
+    document.body.classList.remove('booting');
+    document.body.classList.add('boot-complete');
+    document.body.classList.add('intro-ready');
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        document.body.classList.add('intro-play');
+      });
+    });
+    boot.classList.add('hidden');
+  }, 2320);
+})();
+
+// ── MOBILE DETECTION ───────────────────────────────────────────
+// viewport is fixed at 900px wide so media queries don't work on mobile
+// instead detect touch device and apply class to body
+(function(){
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints > 1 && window.screen.width <= 1024);
+  if(isMobile) document.body.classList.add('is-mobile');
+})();
+
+// ── CLOCK ──────────────────────────────────────────────────────
+function tick(){
+  const n=new Date(),h=n.getHours(),m=n.getMinutes();
+  const ap=h>=12?'PM':'AM',hh=h%12||12;
+  document.getElementById('taskbar-clock').textContent=hh+':'+String(m).padStart(2,'0')+' '+ap;
+}
+tick();setInterval(tick,10000);
+
+// ── WINDOW MANAGEMENT ──────────────────────────────────────────
+const TB_MAP={
+  'site-win':'tb-site','blackjack-win':'tb-blackjack',
+  'mixes-win':'tb-mixes','mix1-win':'tb-mix1','readme-win':'tb-readme',
+  'youtube-win':'tb-youtube','spotify-win':'tb-spotify'
+};
+function openWin(id){
+  const w=document.getElementById(id);
+  w.classList.add('open');w.style.display='flex';w.style.zIndex=200;
+  const tb=TB_MAP[id];if(tb)document.getElementById(tb).style.display='block';
+}
+function closeWin(id,tb){
+  document.getElementById(id).classList.remove('open');
+  document.getElementById(id).style.display='none';
+  if(tb)document.getElementById(tb).style.display='none';
+}
+function minimizeWin(id){document.getElementById(id).style.display='none';}
+function toggleWin(id){
+  const w=document.getElementById(id);
+  if(!w.classList.contains('open')||w.style.display==='none') openWin(id);
+  else minimizeWin(id);
+}
+function openLink(url){window.open(url,'_blank');}
+
+// ── DRAG (mouse + touch) ───────────────────────────────────────
+let drag=null;
+function startDrag(e,id){
+  const w=document.getElementById(id);
+  const r=w.getBoundingClientRect();
+  const cx=e.touches?e.touches[0].clientX:e.clientX;
+  const cy=e.touches?e.touches[0].clientY:e.clientY;
+  drag={id,ox:cx-r.left,oy:cy-r.top};
+  w.style.zIndex=200;
+  e.preventDefault();
+}
+function onMove(e){
+  if(!drag)return;
+  const cx=e.touches?e.touches[0].clientX:e.clientX;
+  const cy=e.touches?e.touches[0].clientY:e.clientY;
+  const w=document.getElementById(drag.id);
+  w.style.left=(cx-drag.ox)+'px';
+  w.style.top=(cy-drag.oy)+'px';
+  e.preventDefault();
+}
+function onEnd(){drag=null;}
+document.addEventListener('mousemove',onMove);
+document.addEventListener('mouseup',onEnd);
+document.addEventListener('touchmove',onMove,{passive:false});
+document.addEventListener('touchend',onEnd);
+document.querySelectorAll('.win-btn').forEach(btn=>{
+  btn.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
+  btn.addEventListener('mousedown',e=>e.stopPropagation());
+  btn.addEventListener('click',e=>e.stopPropagation());
+});
+
+// ── CHAT ───────────────────────────────────────────────────────
+const CK='lampie-chat-v3';
+function getChatMsgs(){try{const d=localStorage.getItem(CK);return d?JSON.parse(d):[]}catch(e){return[];}}
+function saveChatMsgs(m){try{localStorage.setItem(CK,JSON.stringify(m));}catch(e){}}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function renderMsgs(msgs){
+  const box=document.getElementById('chatMessages');
+  if(!msgs||!msgs.length){box.innerHTML='<div class="chat-empty">no messages yet. say something.</div>';return;}
+  box.innerHTML=msgs.map(m=>`<div class="chat-msg"><span class="nm">${esc(m.name)}</span><span class="tm">${m.time}</span><span class="tx">${esc(m.text)}</span></div>`).join('');
+  box.scrollTop=box.scrollHeight;
+}
+async function loadMsgs(){
+  try{const r=await window.storage.get(CK,true);if(r&&r.value){renderMsgs(JSON.parse(r.value));return;}}catch(e){}
+  renderMsgs(getChatMsgs());
+}
+async function postMessage(){
+  const name=document.getElementById('chatName').value.trim()||'anon';
+  const text=document.getElementById('chatText').value.trim();
+  if(!text)return;
+  const now=new Date();
+  const time=now.toLocaleDateString('en-US',{month:'numeric',day:'numeric'})+' '+
+    now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}).toLowerCase();
+  let msgs=[];
+  try{const r=await window.storage.get(CK,true);if(r&&r.value)msgs=JSON.parse(r.value);}catch(e){msgs=getChatMsgs();}
+  msgs.push({name,text,time});
+  if(msgs.length>50)msgs=msgs.slice(-50);
+  try{await window.storage.set(CK,JSON.stringify(msgs),true);}catch(e){}
+  saveChatMsgs(msgs);
+  document.getElementById('chatText').value='';
+  renderMsgs(msgs);
+}
+document.getElementById('chatText').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();postMessage();}
+});
+loadMsgs();setInterval(loadMsgs,8000);
+
+// ── VISIT COUNTER ──────────────────────────────────────────────
+(function(){
+  const KEY='lampie-visits';
+  let c=parseInt(localStorage.getItem(KEY)||'0')+1;
+  localStorage.setItem(KEY,c);
+  const el=document.getElementById('visit-count');
+  if(el)el.textContent=String(c).padStart(6,'0');
+})();
+
+// ── BLACKJACK ──────────────────────────────────────────────────
+(function(){
+  const S=['♠','♥','♦','♣'],R=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+  let deck=[],pH=[],dH=[],bal=100,bet=5,over=true;
+  function buildDeck(){
+    deck=[];for(const s of S)for(const r of R)deck.push({s,r});
+    for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
+  }
+  function val(r){if(['J','Q','K'].includes(r))return 10;if(r==='A')return 11;return+r;}
+  function hval(h){let v=0,a=0;for(const c of h){v+=val(c.r);if(c.r==='A')a++;}while(v>21&&a-->0)v-=10;return v;}
+  function deal(){return deck.pop();}
+  function mkCard(c,hidden){
+    const red=['♥','♦'].includes(c.s);const d=document.createElement('div');
+    d.style.cssText=`width:38px;height:56px;background:${hidden?'#000080':'#fff'};
+      border-top:2px solid #fff;border-left:2px solid #fff;border-bottom:2px solid #555;border-right:2px solid #555;
+      display:flex;flex-direction:column;justify-content:space-between;padding:2px 3px;
+      font-family:'VT323',monospace;font-size:13px;color:${hidden?'#000080':(red?'#aa0000':'#000')};`;
+    if(!hidden)d.innerHTML=`<span>${c.r}${c.s}</span><span style="align-self:flex-end;transform:rotate(180deg)">${c.r}${c.s}</span>`;
+    return d;
+  }
+  function renderHands(hide=true){
+    const pc=document.getElementById('bj-player-cards'),dc=document.getElementById('bj-dealer-cards');
+    pc.innerHTML='';dc.innerHTML='';
+    pH.forEach(c=>pc.appendChild(mkCard(c)));
+    dH.forEach((c,i)=>dc.appendChild(mkCard(c,hide&&i===1)));
+    document.getElementById('bj-player-val').textContent=`(${hval(pH)})`;
+    document.getElementById('bj-dealer-val').textContent=hide?'(?)':`(${hval(dH)})`;
+  }
+  function msg(m){document.getElementById('bj-msg').textContent=m;}
+  function updBal(){document.getElementById('bj-balance').textContent='$'+bal;}
+  function updBet(){document.getElementById('bj-bet').textContent='$'+bet;}
+  function showBet(){document.getElementById('bj-bet-ctrl').style.display='flex';document.getElementById('bj-act-ctrl').style.display='none';document.getElementById('bj-new-ctrl').style.display='none';}
+  function showAct(){document.getElementById('bj-bet-ctrl').style.display='none';document.getElementById('bj-act-ctrl').style.display='flex';document.getElementById('bj-new-ctrl').style.display='none';}
+  function showNew(){document.getElementById('bj-bet-ctrl').style.display='none';document.getElementById('bj-act-ctrl').style.display='none';document.getElementById('bj-new-ctrl').style.display='flex';}
+  window.bjBet=function(n){if(!over)return;bet=Math.max(5,Math.min(bal,bet+n));updBet();};
+  window.bjDeal=function(){
+    if(bal<bet){msg('Not enough balance!');return;}
+    if(deck.length<15)buildDeck();
+    bal-=bet;updBal();pH=[deal(),deal()];dH=[deal(),deal()];over=false;
+    renderHands(true);msg('');
+    if(hval(pH)===21){end();return;}
+    showAct();
+  };
+  window.bjHit=function(){pH.push(deal());renderHands(true);if(hval(pH)>=21)end();else showAct();};
+  window.bjStand=function(){end();};
+  window.bjDouble=function(){if(bal<bet)return;bal-=bet;bet*=2;updBal();updBet();pH.push(deal());renderHands(true);end();};
+  function end(){
+    over=true;while(hval(dH)<17)dH.push(deal());renderHands(false);
+    const pv=hval(pH),dv=hval(dH);let m='';
+    if(pv>21){m='Bust! You lose.';}
+    else if(dv>21){bal+=bet*2;m=`Dealer busts! +$${bet}`;}
+    else if(pv===21&&pH.length===2&&!(dv===21&&dH.length===2)){const w=Math.floor(bet*2.5);bal+=w;m=`Blackjack! +$${w}`;}
+    else if(pv>dv){bal+=bet*2;m=`You win! +$${bet}`;}
+    else if(pv===dv){bal+=bet;m='Push. Bet returned.';}
+    else{m=`Dealer wins. -$${bet}`;}
+    updBal();msg(m);
+    if(bet>bal)bet=Math.max(5,Math.floor(bal/5)*5);updBet();
+    if(bal<5){msg(m+' — Out of money!');setTimeout(()=>{bal=100;bet=5;updBal();updBet();showBet();msg('$100 reloaded!');},2000);return;}
+    showNew();
+  }
+  window.bjNew=function(){
+    bet=Math.min(bet,bal);updBet();showBet();msg('');
+    document.getElementById('bj-player-cards').innerHTML='';document.getElementById('bj-dealer-cards').innerHTML='';
+    document.getElementById('bj-player-val').textContent='';document.getElementById('bj-dealer-val').textContent='';
+  };
+  buildDeck();
+})();
+
+</script>
+</body>
+</html>
