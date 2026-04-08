@@ -523,20 +523,20 @@ body.is-mobile .win-body{min-height:calc(100vh - 220px);}
 body.is-mobile .titlebar{padding:6px 8px;}
 body.is-mobile .win-btns{gap:4px;}
 body.is-mobile #blackjack-win{
-  width:calc(100vw - 20px) !important;
-  max-width:calc(100vw - 20px) !important;
+  width:calc(100vw - 24px) !important;
+  max-width:calc(100vw - 24px) !important;
   height:calc(100vh - 390px) !important;
   max-height:calc(100vh - 390px) !important;
-  left:10px !important;
+  left:12px !important;
   top:430px !important;
 }
-body.is-mobile #bj-wrap{font-size:20px;padding:12px;}
-body.is-mobile .bj-btn{font-size:18px;padding:6px 12px;}
+body.is-mobile #bj-wrap{font-size:17px;padding:10px;}
+body.is-mobile .bj-btn{font-size:16px;padding:5px 10px;}
 body.is-mobile #bj-bet-ctrl,
 body.is-mobile #bj-act-ctrl,
 body.is-mobile #bj-new-ctrl{flex-wrap:wrap;gap:8px;}
 body.is-mobile #bj-dealer-cards,
-body.is-mobile #bj-player-cards{min-height:84px !important;gap:6px !important;}
+body.is-mobile #bj-player-cards{min-height:74px !important;gap:6px !important;}
 body.is-mobile #site{padding:14px 16px 20px;font-size:24px;}
 body.is-mobile #site h1{font-size:56px;line-height:.95;margin-bottom:8px;}
 body.is-mobile #site h2{font-size:28px;margin-bottom:8px;}
@@ -583,7 +583,7 @@ body.is-mobile .chat-board{padding:8px;}
     top:236px !important;
   }
   #bj-wrap{font-size:16px;padding:10px;}
-  .bj-btn{font-size:15px;padding:4px 10px;}
+  .bj-btn{font-size:14px;padding:4px 8px;}
   #bj-bet-ctrl,
   #bj-act-ctrl,
   #bj-new-ctrl{flex-wrap:wrap;gap:6px;}
@@ -977,9 +977,19 @@ const TB_MAP={
   'mixes-win':'tb-mixes','mix1-win':'tb-mix1','readme-win':'tb-readme',
   'youtube-win':'tb-youtube','spotify-win':'tb-spotify'
 };
+let topWinZ=200;
+function bringToFront(el){
+  if(!el) return;
+  if(document.body.classList.contains('is-mobile')){
+    el.style.zIndex=200;
+    return;
+  }
+  topWinZ+=1;
+  el.style.zIndex=topWinZ;
+}
 function openWin(id){
   const w=document.getElementById(id);
-  w.classList.add('open');w.style.display='flex';w.style.zIndex=200;
+  w.classList.add('open');w.style.display='flex';bringToFront(w);
   const tb=TB_MAP[id];if(tb)document.getElementById(tb).style.display='block';
 }
 function closeWin(id,tb){
@@ -1003,7 +1013,7 @@ function startDrag(e,id){
   const cx=e.touches?e.touches[0].clientX:e.clientX;
   const cy=e.touches?e.touches[0].clientY:e.clientY;
   drag={id,ox:cx-r.left,oy:cy-r.top};
-  w.style.zIndex=200;
+  bringToFront(w);
   e.preventDefault();
 }
 function onMove(e){
