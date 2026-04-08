@@ -529,21 +529,25 @@ body.is-mobile #blackjack-win{
   max-height:calc(100vh - 430px - 82px - 12px) !important;
   left:12px !important;
   top:430px !important;
+  background:#005000;
 }
 body.is-mobile #blackjack-win #bj-wrap{
   font-size:20px;
   padding:14px;
   display:flex;
   flex-direction:column;
+  justify-content:space-between;
   gap:14px;
   overflow:auto;
+  min-height:100%;
+  background:#005000;
 }
-body.is-mobile .bj-btn{font-size:20px;padding:8px 14px;}
+body.is-mobile .bj-btn{font-size:22px;padding:10px 16px;}
 body.is-mobile #bj-bet-ctrl,
 body.is-mobile #bj-act-ctrl,
-body.is-mobile #bj-new-ctrl{flex-wrap:wrap;gap:10px;}
+body.is-mobile #bj-new-ctrl{flex-wrap:wrap;gap:12px;}
 body.is-mobile #bj-dealer-cards,
-body.is-mobile #bj-player-cards{min-height:108px !important;gap:8px !important;}
+body.is-mobile #bj-player-cards{min-height:132px !important;gap:10px !important;}
 body.is-mobile #site{padding:14px 16px 20px;font-size:24px;}
 body.is-mobile #site h1{font-size:56px;line-height:.95;margin-bottom:8px;}
 body.is-mobile #site h2{font-size:28px;margin-bottom:8px;}
@@ -715,7 +719,7 @@ body.is-mobile .chat-board{padding:8px;}
 </div>
 
 <!-- BLACKJACK -->
-<div class="win" id="blackjack-win" style="top:420px;left:290px;width:420px;">
+<div class="win" id="blackjack-win" style="top:24px;left:290px;width:420px;">
   <div class="titlebar" onmousedown="startDrag(event,'blackjack-win')" ontouchstart="startDrag(event,'blackjack-win')">
     <span class="titlebar-icon">♠</span>
     <div class="titlebar-title">Blackjack.exe</div>
@@ -1101,10 +1105,11 @@ loadMsgs();setInterval(loadMsgs,8000);
   function deal(){return deck.pop();}
   function mkCard(c,hidden){
     const red=['♥','♦'].includes(c.s);const d=document.createElement('div');
-    d.style.cssText=`width:38px;height:56px;background:${hidden?'#000080':'#fff'};
+    const isMobile=document.body.classList.contains('is-mobile');
+    d.style.cssText=`width:${isMobile?52:38}px;height:${isMobile?76:56}px;background:${hidden?'#000080':'#fff'};
       border-top:2px solid #fff;border-left:2px solid #fff;border-bottom:2px solid #555;border-right:2px solid #555;
       display:flex;flex-direction:column;justify-content:space-between;padding:2px 3px;
-      font-family:'VT323',monospace;font-size:13px;color:${hidden?'#000080':(red?'#aa0000':'#000')};`;
+      font-family:'VT323',monospace;font-size:${isMobile?18:13}px;color:${hidden?'#000080':(red?'#aa0000':'#000')};`;
     if(!hidden)d.innerHTML=`<span>${c.r}${c.s}</span><span style="align-self:flex-end;transform:rotate(180deg)">${c.r}${c.s}</span>`;
     return d;
   }
