@@ -330,7 +330,7 @@ body:not(.is-mobile) #site-win .win-body{
 body:not(.is-mobile) #blackjack-win{
   width:840px !important;
   height:540px;
-  top:80px;
+  top:24px;
   left:290px;
 }
 body:not(.is-mobile) #blackjack-win #bj-wrap{
@@ -525,23 +525,25 @@ body.is-mobile .win-btns{gap:4px;}
 body.is-mobile #blackjack-win{
   width:calc(100vw - 24px) !important;
   max-width:calc(100vw - 24px) !important;
+  height:calc(100vh - 430px - 82px - 12px) !important;
+  max-height:calc(100vh - 430px - 82px - 12px) !important;
   left:12px !important;
   top:430px !important;
 }
 body.is-mobile #blackjack-win #bj-wrap{
-  font-size:17px;
-  padding:10px;
+  font-size:20px;
+  padding:14px;
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:14px;
   overflow:auto;
 }
-body.is-mobile .bj-btn{font-size:16px;padding:5px 10px;}
+body.is-mobile .bj-btn{font-size:20px;padding:8px 14px;}
 body.is-mobile #bj-bet-ctrl,
 body.is-mobile #bj-act-ctrl,
-body.is-mobile #bj-new-ctrl{flex-wrap:wrap;gap:8px;}
+body.is-mobile #bj-new-ctrl{flex-wrap:wrap;gap:10px;}
 body.is-mobile #bj-dealer-cards,
-body.is-mobile #bj-player-cards{min-height:74px !important;gap:6px !important;}
+body.is-mobile #bj-player-cards{min-height:108px !important;gap:8px !important;}
 body.is-mobile #site{padding:14px 16px 20px;font-size:24px;}
 body.is-mobile #site h1{font-size:56px;line-height:.95;margin-bottom:8px;}
 body.is-mobile #site h2{font-size:28px;margin-bottom:8px;}
