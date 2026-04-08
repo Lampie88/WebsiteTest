@@ -525,29 +525,42 @@ body.is-mobile .win-btns{gap:4px;}
 body.is-mobile #blackjack-win{
   width:calc(100vw - 24px) !important;
   max-width:calc(100vw - 24px) !important;
-  height:calc(100vh - 430px - 82px - 36px) !important;
-  max-height:calc(100vh - 430px - 82px - 36px) !important;
+  height:calc(100vh - 430px - 82px - 54px) !important;
+  max-height:calc(100vh - 430px - 82px - 54px) !important;
   left:12px !important;
   top:430px !important;
   background:#005000;
 }
 body.is-mobile #blackjack-win #bj-wrap{
   font-size:18px;
-  padding:12px;
+  padding:10px;
   display:flex;
   flex-direction:column;
-  justify-content:space-between;
-  gap:10px;
+  justify-content:flex-start;
+  gap:6px;
   overflow:auto;
   min-height:100%;
   background:#005000;
 }
-body.is-mobile .bj-btn{font-size:18px;padding:8px 12px;}
+body.is-mobile .bj-btn{font-size:19px;padding:8px 14px;}
 body.is-mobile #bj-bet-ctrl,
 body.is-mobile #bj-act-ctrl,
 body.is-mobile #bj-new-ctrl{flex-wrap:wrap;gap:8px;}
 body.is-mobile #bj-dealer-cards,
-body.is-mobile #bj-player-cards{min-height:104px !important;gap:8px !important;}
+body.is-mobile #bj-player-cards{min-height:112px !important;gap:8px !important;}
+body.is-mobile #blackjack-win #bj-wrap > div:first-child{
+  padding:6px 10px !important;
+  margin-bottom:6px !important;
+}
+body.is-mobile #blackjack-win #bj-wrap > div:nth-child(2),
+body.is-mobile #blackjack-win #bj-wrap > div:nth-child(3){
+  margin-bottom:6px !important;
+}
+body.is-mobile #bj-msg{
+  font-size:20px !important;
+  min-height:24px !important;
+  margin-bottom:4px !important;
+}
 body.is-mobile #site{padding:14px 16px 20px;font-size:24px;}
 body.is-mobile #site h1{font-size:56px;line-height:.95;margin-bottom:8px;}
 body.is-mobile #site h2{font-size:28px;margin-bottom:8px;}
@@ -588,13 +601,13 @@ body.is-mobile .chat-board{padding:8px;}
   #blackjack-win{
     width:calc(100vw - 16px) !important;
     max-width:calc(100vw - 16px) !important;
-    height:calc(100vh - 236px - 74px - 28px) !important;
-    max-height:calc(100vh - 236px - 74px - 28px) !important;
+    height:calc(100vh - 236px - 74px - 44px) !important;
+    max-height:calc(100vh - 236px - 74px - 44px) !important;
     left:8px !important;
     top:236px !important;
   }
-  #bj-wrap{font-size:16px;padding:10px;}
-  .bj-btn{font-size:15px;padding:6px 10px;}
+  #bj-wrap{font-size:16px;padding:9px;}
+  .bj-btn{font-size:16px;padding:6px 11px;}
   #bj-bet-ctrl,
   #bj-act-ctrl,
   #bj-new-ctrl{flex-wrap:wrap;gap:8px;}
@@ -1106,10 +1119,10 @@ loadMsgs();setInterval(loadMsgs,8000);
   function mkCard(c,hidden){
     const red=['♥','♦'].includes(c.s);const d=document.createElement('div');
     const isMobile=document.body.classList.contains('is-mobile');
-    d.style.cssText=`width:${isMobile?52:38}px;height:${isMobile?76:56}px;background:${hidden?'#000080':'#fff'};
+    d.style.cssText=`width:${isMobile?56:38}px;height:${isMobile?82:56}px;background:${hidden?'#000080':'#fff'};
       border-top:2px solid #fff;border-left:2px solid #fff;border-bottom:2px solid #555;border-right:2px solid #555;
       display:flex;flex-direction:column;justify-content:space-between;padding:2px 3px;
-      font-family:'VT323',monospace;font-size:${isMobile?18:13}px;color:${hidden?'#000080':(red?'#aa0000':'#000')};`;
+      font-family:'VT323',monospace;font-size:${isMobile?19:13}px;color:${hidden?'#000080':(red?'#aa0000':'#000')};`;
     if(!hidden)d.innerHTML=`<span>${c.r}${c.s}</span><span style="align-self:flex-end;transform:rotate(180deg)">${c.r}${c.s}</span>`;
     return d;
   }
