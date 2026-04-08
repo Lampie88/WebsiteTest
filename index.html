@@ -320,7 +320,8 @@ body.is-mobile.intro-play #show-bubble{
 
 .win-body{overflow-y:auto;flex:1;background:#c0c0c0;}
 body:not(.is-mobile) #site-win{
-  height:min(560px,72vh);
+  width:840px !important;
+  height:540px;
 }
 body:not(.is-mobile) #site-win .win-body{
   min-height:0;
@@ -333,6 +334,30 @@ body:not(.is-mobile) #blackjack-win{
 body:not(.is-mobile) #blackjack-win #bj-wrap{
   flex:1;
   overflow:auto;
+}
+body:not(.is-mobile) #bj-wrap{
+  font-size:22px;
+  padding:16px;
+}
+body:not(.is-mobile) .bj-btn{
+  font-size:20px;
+  padding:8px 16px;
+}
+body:not(.is-mobile) #bj-msg{
+  font-size:24px !important;
+  min-height:30px !important;
+}
+body:not(.is-mobile) #bj-bet-ctrl,
+body:not(.is-mobile) #bj-act-ctrl,
+body:not(.is-mobile) #bj-new-ctrl{
+  gap:10px !important;
+  margin-bottom:10px !important;
+  flex-wrap:wrap;
+}
+body:not(.is-mobile) #bj-dealer-cards,
+body:not(.is-mobile) #bj-player-cards{
+  min-height:92px !important;
+  gap:8px !important;
 }
 
 /* ── SITE CONTENT ────────────────────────────────────────────── */
