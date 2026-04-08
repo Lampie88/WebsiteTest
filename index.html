@@ -330,8 +330,8 @@ body:not(.is-mobile) #site-win .win-body{
 body:not(.is-mobile) #blackjack-win{
   width:840px !important;
   height:540px;
-  top:80px !important;
-  left:290px !important;
+  top:80px;
+  left:290px;
 }
 body:not(.is-mobile) #blackjack-win #bj-wrap{
   flex:1;
@@ -525,12 +525,17 @@ body.is-mobile .win-btns{gap:4px;}
 body.is-mobile #blackjack-win{
   width:calc(100vw - 24px) !important;
   max-width:calc(100vw - 24px) !important;
-  height:calc(100vh - 390px) !important;
-  max-height:calc(100vh - 390px) !important;
   left:12px !important;
   top:430px !important;
 }
-body.is-mobile #bj-wrap{font-size:17px;padding:10px;}
+body.is-mobile #blackjack-win #bj-wrap{
+  font-size:17px;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  overflow:auto;
+}
 body.is-mobile .bj-btn{font-size:16px;padding:5px 10px;}
 body.is-mobile #bj-bet-ctrl,
 body.is-mobile #bj-act-ctrl,
